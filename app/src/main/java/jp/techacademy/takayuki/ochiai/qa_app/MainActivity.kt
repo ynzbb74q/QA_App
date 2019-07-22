@@ -2,7 +2,7 @@ package jp.techacademy.takayuki.ochiai.qa_app
 
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
@@ -17,8 +17,6 @@ import com.google.android.material.navigation.NavigationView
 import android.util.Base64
 import android.widget.ListView
 import com.google.firebase.database.*
-
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -162,9 +160,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onResume()
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
+        // 未ログイン時は、ナビゲーションドロワーに「お気に入り」を表示しない
+        val user = FirebaseAuth.getInstance().currentUser
+        val menu = navigationView.getMenu()
+        val mNavClip = menu.findItem(R.id.nav_clip)
+        if (user == null) {
+            mNavClip.setVisible(false)
+        }else{
+            mNavClip.setVisible(true) // 一度setVisible(false)を行うと、再ログインしても描画されなかったため、setVisible(true)を行う
+        }
+
         // 1:趣味を既定の選択とする
         if (mGenre == 0) {
-            onNavigationItemSelected(navigationView.menu.getItem(0))
+            onNavigationItemSelected(navigationView.menu.getItem(1))
         }
     }
 
@@ -201,6 +209,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else if (id == R.id.nav_computer) {
             mToolbar.title = "コンピューター"
             mGenre = 4
+        } else if (id == R.id.nav_clip) {
+            // お気に入りが選択された場合は、お気に入り画面に遷移させる
+            val intent = Intent(applicationContext, ClipActivity::class.java)
+            startActivity(intent)
+            return true
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
